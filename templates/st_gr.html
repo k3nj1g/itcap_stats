@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+    Группы статистик
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/jquery.bpopup.min.js"></script> 
+    <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+      $('#stat_e').addClass("active");
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container marketing">
+        <ul class="breadcrumb">
+            <li><a href="/">Личный кабинет</a></li>
+            <li class="active">Группы статистик</li>
+        </ul>
+
+        <div class="alert alert-info" style="font-size:12px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Информация!</strong>
+            <br>Страница - Группы статистик. Представлен список групп по которым ведется статистика.
+        </div>
+
+        <p style="font-size:14px;"><strong>Список групп</strong></p>
+        <table  width='100%' class="table table-condensed" style="font-size:12px;">
+            <tr>
+                <td style="font-size:14px;">#</td>
+                <td style="font-size:14px;">Название группы</td>
+            </tr>
+            {% for group in st_group %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td><a href="{% url 'stats_orgs' group.id %}">{{group.name}}</a></td>
+                    <td>
+                </tr>
+            {% endfor %}
+        </table>
+        <button type="button" class="btn btn-success btn-sm" data-toggle="modal" data-target="#add_gr">
+            Добавить группу
+        </button>
+
+        <div id="add_gr" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="add_gr_label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form class="form-horizontal" action="" method="POST">{% csrf_token %}
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                  <h5 id="add_gr_label">Добавить группу</h5>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label for="id_name" class="col-sm-3 control-label">Наименование</label>
+                    <div class="col-sm-9">
+                      {{ form.name|add_class:"form-control"  }}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="id_description" class="col-sm-3 control-label">Описание</label>
+                    <div class="col-sm-9">
+                      {{ form.description|add_class:"form-control" }}
+                    </div>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Закрыть</button>
+                  <button type="submit" class="btn btn-primary btn-sm">Добавить</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+{% endblock %}
+ 

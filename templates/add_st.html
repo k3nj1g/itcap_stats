@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}
+    Статистика - {{org.org.name}}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/jquery.bpopup.min.js"></script> 
+     <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+      $('#stat_e').addClass("active");
+    });
+  </script>
+{% endblock %}
+
+
+{% block content %}
+
+    <div class="container marketing">
+        <ul class="breadcrumb">
+            <li><a href="/">Личный кабинет</a></li>
+            <li><a href="{% url 'stats_group' %}">Группы статистик</a></li>
+            <li><a href="{% url 'stats_org' org.id %}">Статистика - {{org.org.name|truncatewords:5}}</a></li>
+            <li class="active">Добавление статистики</li>
+        </ul>
+
+        <div class="alert alert-info" style="font-size:12px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Информация!</strong>
+            <br>Добавление статистики для организации {{org.org.name}}.
+        </div>
+        
+        <span class="label label-info">{{info}}</span>
+         <p><h5>Введите общую статистику:</h5></p>
+
+        <div class="well">
+          <form class="form-horizontal" action="{% url 'add_stat' %}" method="POST">
+          {% csrf_token %}
+            <input type="hidden" name="org" id="org" value="{{org.id}}">
+            <div class="form-group form-group-sm">
+              <label for="id_year" class="col-sm-2 control-label">Год</label>
+              <div class="col-sm-3">
+                {{ form.year }}
+              </div>
+            </div>
+            <div class="form-group form-group-sm">
+              <label for="id_month" class="col-sm-2 control-label">Месяц</label>
+              <div class="col-sm-3">
+                {{ form.month }}
+              </div>
+            </div>
+            <div class="form-group form-group-sm">
+              <label for="id_sum_all" class="col-sm-2 control-label">Количество обращений:</label>
+              <div class="col-sm-2">
+                {{ form.calls }}
+              </div>
+              <div class="col-sm-1" style="padding: 6px 0 0;">обращений</div>
+            </div>
+            <div class="form-group form-group-sm">
+              <label for="id_sum_all" class="col-sm-2 control-label">Количество запросов:</label>
+              <div class="col-sm-2">
+                {{ form.requests }}
+              </div>
+              <div class="col-sm-1" style="padding: 6px 0 0;">запросов</div>
+            </div>
+            <div class="form-group form-group-sm">
+              <div class="col-sm-offset-2 col-sm-3">
+                <button type="submit" class="btn btn-primary btn-sm">Добавить</button>
+              </div>
+            </div>
+            </form>
+          </div>
+
+
+{% endblock %}
+ 

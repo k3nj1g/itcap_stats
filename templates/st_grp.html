@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Статистика - {{st_group.name}}
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+ <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+      $('#stat_e').addClass("active");
+    });
+  </script>
+{% endblock %}
+
+{% block content %}
+     
+    <div class="container marketing">
+        <ul class="breadcrumb">
+            <li><a href="/">Личный кабинет</a></li>
+            <li><a href={% url 'stats_group' %}>Группы статистик</a></li>
+            <li class="active">Статистика - {{st_group.name}}</li>
+        </ul>
+        <div class="alert alert-info" style="font-size:12px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Информация!</strong>
+            <br>Страница статистика - {{st_group.name}} . В таблице представлены организации по которым ведется статистика в данной группе.
+        </div>
+        <p style="font-size:14px;"><strong>Список организаций</strong></p>
+        <table  width='100%' class="table table-condensed" style="font-size:12px;">
+            <tr>
+                <td style="font-size:14px;color:black;">#</td>
+                <td style="font-size:14px;color:black;text-align:center;">Наименование</td>
+                <td style="font-size:14px;color:black;"></td>
+            </tr>
+            {% for org in st_group.orgs.all %}
+                <tr>
+                    <td>{{forloop.counter}}</td>
+                    <td><a href="{% url 'stats_org' org.id %}">{{org.org.name}}</a></td>
+                    <td><a href="{% url 'add_stats_page' org.id %}"  title="Добавить статистику" ><i class="fa fa-plus fa-lg"></i></a></td>
+                </tr>
+            {% endfor %}
+        </table>
+
+{% endblock %}
+ 
