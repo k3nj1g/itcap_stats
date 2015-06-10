@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import permission_required
@@ -44,12 +45,30 @@ def add_stats(request, id):
 
 @permission_required('edit_stats')
 def stats_org(request, id):
-    st_org = Org.objects.get(id=int(id))
+    org = Org.objects.get(id=int(id))
     now = datetime.datetime.now().year
     years = {}
+    if request.method == 'POST':
+        form = NewStatForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            year = int(data['year'])
+            year = YEAR_CHOICES[year]
+            month = data['month']
+            month_st = org.stat_all.filter(period__year=year, period__month=month)
+            month_st.delete()
+            calls = data['calls']
+            requests = data['requests']
+            date = '01 '+month+' '+year
+            period = datetime.datetime.strptime(date, '%d %m %Y')
+            data = org.stat_all.create(period=period, calls=calls, requests=requests, user_created=request.user)
+            data.save()
+            return HttpResponseRedirect(reverse('stats_org', args=(id,)))
+    else:
+        form = NewStatForm()
     for key, value in YEAR_CHOICES.items():
         years[key] = int(value)
-    return render_to_response('st_org.html', {'st_org': st_org, 'year': years, 'current_year': now},
+    return render_to_response('st_org.html', {'st_org': org, 'year': years, 'current_year': now, 'form': form},
                               context_instance=RequestContext(request))
 
 
@@ -87,16 +106,15 @@ def get_stat(request):
             year = int(request.GET.get('year'))
             org_id = int(request.GET.get('org'))
             org = Org.objects.get(id=org_id)
-            stats = org.stat_all.get(period__year=year)
-            month = stats.period.month
+            stats = org.stat_all.filter(period__year=year)
             table_data = json.dumps(
                 {
-                    "aaData": [{"id": month,
-                                "month": MONTHS[month].encode('utf-8'),
-                                "calls": stats.calls,
-                                "requests": stats.requests,
+                    "aaData": [{"id": st.period.month,
+                                "month": MONTHS[st.period.month].encode('utf-8'),
+                                "calls": st.calls,
+                                "requests": st.requests,
                                }
-                               ]
+                               for st in stats]
                 }, ensure_ascii=False)
             return HttpResponse(table_data, 'application/javascript')
         else:

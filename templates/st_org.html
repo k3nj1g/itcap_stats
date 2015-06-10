@@ -26,7 +26,7 @@
         var oTable;
         function year_change(){
             year = $("#year option:selected").val();
-            oTable.fnReloadAjax('/get_stat?org={{st_org.id}}&year='+year);
+            oTable.fnReloadAjax('/stats/get_stat?org={{st_org.id}}&year='+year);
         };
 
         $(document).ready(function() {
@@ -75,7 +75,7 @@
         <table class="table">
             <tr>
                 <td><strong>Организация:</strong></td>
-                <td>{{st_org.org.name}} <a href="{% url 'add_stats_page' st_org.org.id %}" title="Добавить статистику"> <i class="fa fa-plus"></i></a></td>
+                <td>{{st_org.org.name}}</td>
             </tr>
             <tr>
                 <td><strong>Cтатистика за </strong></td>
@@ -92,6 +92,7 @@
                 </td>
             </tr>
         </table>
+        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add_stats">Добавить</button>
         <div>
           <table id='stat_org' width='100%' class="table table-condensed" style="font-size:12px;">
             <thead>
@@ -105,6 +106,49 @@
             <tbody>
             </tbody>
           </table>
+        </div>
+        <div class="modal fade" id="add_stats" tabindex="-1" role="dialog" aria-labelledby="add_stats_label" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+             <form class="form-horizontal" action="" method="POST">{% csrf_token %}
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="add_stats_label">Добавить статистику за месяц</h4>
+              </div>
+              <div class="modal-body">
+                  <input type="hidden" name="org" id="org" value="{{org.id}}">
+                  <div class="form-group form-group-sm">
+                    <label for="id_year" class="col-sm-4 col-sm-offset-2 control-label">Год</label>
+                    <div class="col-sm-3">
+                      {{ form.year }}
+                    </div>
+                  </div>
+                  <div class="form-group form-group-sm">
+                    <label for="id_month" class="col-sm-4 col-sm-offset-2 control-label">Месяц</label>
+                    <div class="col-sm-3">
+                      {{ form.month }}
+                    </div>
+                  </div>
+                  <div class="form-group form-group-sm">
+                    <label for="id_sum_all" class="col-sm-4 col-sm-offset-2 control-label">Количество обращений:</label>
+                    <div class="col-sm-2">
+                      {{ form.calls }}
+                    </div>
+                  </div>
+                  <div class="form-group form-group-sm">
+                    <label for="id_sum_all" class="col-sm-4 col-sm-offset-2 control-label">Количество запросов:</label>
+                    <div class="col-sm-2">
+                      {{ form.requests }}
+                    </div>
+                  </div>
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-primary btn-sm">Сохранить</button>
+                <button type="button" class="btn btn-default btn-sm" data-dismiss="modal">Отмена</button>
+              </div>
+             </form>
+            </div>
+          </div>
         </div>
 {% endblock %}
  

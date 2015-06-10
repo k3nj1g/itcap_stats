@@ -44,7 +44,7 @@ class Stats(models.Model):
     created = models.DateTimeField(u'Создано', auto_now_add=True)
     modified = models.DateTimeField(u'Изменено', auto_now=True)
     user_created = models.ForeignKey(User, verbose_name=u'Создал', related_name='user_created')
-    user_changed = models.ForeignKey(User, verbose_name=u'Изменил', related_name='user_changed')
+    user_changed = models.ForeignKey(User, verbose_name=u'Изменил', related_name='user_changed', null=True, blank=True)
 
     def __unicode__(self):
         return str(self.period)
