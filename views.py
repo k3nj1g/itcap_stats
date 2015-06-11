@@ -51,7 +51,7 @@ def stats_org(request, id):
             calls = data['calls']
             requests = data['requests']
             date = '01 '+month+' '+year
-            period = datetime.datetime.strptime(date, '%d %m %Y')
+            period = datetime.strptime(date, '%d %m %Y')
             try:
                 month_st = org.stat_all.get(period__year=year, period__month=month)
             except Stats.DoesNotExist:
@@ -131,7 +131,7 @@ def requests_chart_view(request, id):
         chart_options=
         {'title': {
             'text': u'Динамика количества обращений и запросов по месяцам'},
-            'xAxis': {
-                'title': {
-                    'text': u'Месяц'}}})
+            'xAxis': {'title': {'text': u'Месяц'}},
+            'yAxis': {'title': {'text': u'Количество'}}},
+        x_sortf_mapf_mts=(lambda *x: (-1*x[0],), None, False))
     return render_to_response('st_chart.html', {'requestchart': cht, 'group': group, 'org': org})
