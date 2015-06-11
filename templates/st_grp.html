@@ -33,13 +33,13 @@
             <tr>
                 <td style="font-size:14px;color:black;">#</td>
                 <td style="font-size:14px;color:black;text-align:center;">Наименование</td>
-                <td style="font-size:14px;color:black;"></td>
+                <td style="font-size:14px;color:black;">График</td>
             </tr>
             {% for org in st_group.orgs.all %}
                 <tr>
                     <td>{{forloop.counter}}</td>
                     <td><a href="{% url 'stats_org' org.id %}">{{org.org.name}}</a></td>
-                    <td><a href="{% url 'add_stats_page' org.id %}"  title="Добавить статистику" ><i class="fa fa-plus fa-lg"></i></a></td>
+                    <td><a href="{% url 'chart' org.id %}"><i class="fa fa-line-chart"></i></a></td>
                 </tr>
             {% endfor %}
         </table>

@@ -5,9 +5,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.decorators import permission_required
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
-from django.utils.dates import MONTHS
 
-import datetime
+from datetime import datetime
 import json
 
 from .forms import *
@@ -37,16 +36,10 @@ def stats_orgs(request, id):
 
 
 @permission_required('edit_stats')
-def add_stats(request, id):
-    st_org = Org.objects.get(id=int(id))
-    return render_to_response('st_org.html', {'st_org': st_org},
-                              context_instance=RequestContext(request))
-
-
-@permission_required('edit_stats')
 def stats_org(request, id):
     org = Org.objects.get(id=int(id))
-    now = datetime.datetime.now().year
+    group = org.stat_org.get(orgs=org)
+    now = datetime.now().year
     years = {}
     if request.method == 'POST':
         form = NewStatForm(request.POST)
@@ -55,48 +48,29 @@ def stats_org(request, id):
             year = int(data['year'])
             year = YEAR_CHOICES[year]
             month = data['month']
-            month_st = org.stat_all.filter(period__year=year, period__month=month)
-            month_st.delete()
             calls = data['calls']
             requests = data['requests']
             date = '01 '+month+' '+year
             period = datetime.datetime.strptime(date, '%d %m %Y')
-            data = org.stat_all.create(period=period, calls=calls, requests=requests, user_created=request.user)
-            data.save()
+            try:
+                month_st = org.stat_all.get(period__year=year, period__month=month)
+            except Stats.DoesNotExist:
+                month_st = None
+            if month_st:
+                user_created = month_st.user_created
+                month_st.delete()
+                data = org.stat_all.create(period=period, calls=calls, requests=requests, user_created=user_created, user_changed=request.user)
+                data.save()
+            else:
+                data = org.stat_all.create(period=period, calls=calls, requests=requests, user_created=request.user)
+                data.save()
             return HttpResponseRedirect(reverse('stats_org', args=(id,)))
     else:
         form = NewStatForm()
     for key, value in YEAR_CHOICES.items():
         years[key] = int(value)
-    return render_to_response('st_org.html', {'st_org': org, 'year': years, 'current_year': now, 'form': form},
-                              context_instance=RequestContext(request))
-
-
-@permission_required('edit_stats')
-def add_stats_page(request, id):
-    org = Org.objects.get(id=int(id))
-    form = NewStatForm()
-    return render_to_response('add_st.html', {'org': org, 'form': form},
-                              context_instance=RequestContext(request))
-
-@permission_required('edit_stats')
-def add_stat(request):
-    if request.method == 'POST':
-        form = NewStatForm(request.POST)
-        id = int(request.POST.get('org'))
-        org = Org.objects.get(id=id)
-        info = ""
-        if form.is_valid():
-            data = form.cleaned_data
-            year = int(data['year'])
-            year = YEAR_CHOICES[year]
-            month = data['month']
-            month_st = org.stat_all.filter(period__year=year, period__month=month)
-            month_st.delete()
-            #info = "Статистика за " + str(month) + " месяц перезаписанa"
-            #data = Stats.objects.create(year=year, month=month, sum_all=sum_all)
-            #data.save()
-        return HttpResponseRedirect('ad')
+    context = {'st_org': org, 'year': years, 'current_year': now, 'form': form, 'group': group}
+    return render_to_response('st_org.html', context, context_instance=RequestContext(request))
 
 
 @csrf_exempt
@@ -121,3 +95,43 @@ def get_stat(request):
             return HttpResponse(status=400)
     else:
         return HttpResponse(status=400)
+
+
+#------------------- Charts -------------------#
+from chartit import DataPool, Chart
+
+from django.utils.dateformat import format
+
+
+def requests_chart_view(request, id):
+    org = Org.objects.get(id=int(id))
+    group = org.stat_org.get(orgs=org)
+    stats = org.stat_all.all()
+    requestsdata = \
+        DataPool(
+            series=
+            [{'options': {
+                'source': stats},
+              'terms': [
+                  ('period', lambda d: format(d, "F")),
+                  'requests',
+                  'calls']}
+            ])
+    cht = Chart(
+        datasource=requestsdata,
+        series_options=
+        [{'options': {
+            'type': 'line',
+            'stacking': False},
+          'terms': {
+              'period': [
+                  'requests',
+                  'calls']
+          }}],
+        chart_options=
+        {'title': {
+            'text': u'Динамика количества обращений и запросов по месяцам'},
+            'xAxis': {
+                'title': {
+                    'text': u'Месяц'}}})
+    return render_to_response('st_chart.html', {'requestchart': cht, 'group': group, 'org': org})
