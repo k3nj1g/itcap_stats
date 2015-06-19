@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-     
+
     <div class="container marketing">
         <ul class="breadcrumb">
             <li><a href="/">Личный кабинет</a></li>
@@ -39,7 +39,13 @@
                 <tr>
                     <td>{{forloop.counter}}</td>
                     <td><a href="{% url 'stats_org' org.id %}">{{org.org.name}}</a></td>
-                    <td><a href="{% url 'chart' org.id %}"><i class="fa fa-line-chart"></i></a></td>
+                    <td>
+                        <select name="year" id="year">
+                          {% for key, y in year.items %}
+                              <option value="{{y}}">{{y}}</option>
+                          {% endfor %}
+                        </select>
+                        <a href="{% url 'chart' org.id %}"><i class="fa fa-line-chart"></i></a></td>
                 </tr>
             {% endfor %}
         </table>
