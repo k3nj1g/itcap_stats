@@ -135,3 +135,21 @@ def requests_chart_view(request, id):
             'yAxis': {'title': {'text': u'Количество'}}},
         x_sortf_mapf_mts=(lambda *x: (-1*x[0],), None, False))
     return render_to_response('st_chart.html', {'requestchart': cht, 'group': group, 'org': org})
+
+
+import csv
+def import_data(file):
+    with open('/stats/data.csv', 'rb') as csvfile:
+        stat_data = csv.reader(csvfile, delimiter=";")
+        for row in stat_data:
+            org = Org.objects.get(org__name=row[0])
+            print org
+            stats = Stats()
+            stats.period = row[3]
+            stats.calls = row[1]
+            stats.requests = row[2]
+            stats.user_created = User.objects.get(username="info12")
+            stats.save()
+            org.stat_all = Stats.objects.filter(statistics__id=org.id)|Stats.objects.filter(id=stats.id)
+            org.save()
+    return HttpResponseRedirect("/stats/")

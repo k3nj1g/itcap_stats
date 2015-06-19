@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load chartit %}
+
+
+{% block title %}
+    График
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+      $('#stat_e').addClass("active");
+    });
+    </script>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container marketing">
+        <ul class="breadcrumb">
+            <li><a href="/">Личный кабинет</a></li>
+            <li><a href="{% url 'stats_group' %}">Группы статистик</a></li>
+            <li><a href="{% url 'stats_orgs' group.id %}">{{ group.name|truncatewords:2 }}</a></li>
+            <li class="active">График - {{org.org.name|truncatewords:5}}</li>
+        </ul>
+
+        <div class="alert alert-info" style="font-size:12px;">
+            <button class="close" data-dismiss="alert">×</button>
+            <strong>Информация!</strong>
+            <br>
+            График показывает динамику количества обращений за услугами и запросов в СМЭВ по оказанию этих услуг за год
+        </div>
+        <div id='container'> {{ requestchart|load_charts:"container" }} </div>
+{% endblock %}
+ 

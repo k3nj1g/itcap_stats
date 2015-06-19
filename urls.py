@@ -8,4 +8,5 @@ urlpatterns = patterns('',
                        url(r'^org/(?P<id>\d+)/$', stats_org, name='stats_org'),
                        url(r'^get_stat', get_stat),
                        url(r'^chart/(?P<id>\d+)/$', requests_chart_view, name='chart'),
+                       url(r'^import/$', import_data),
 )
